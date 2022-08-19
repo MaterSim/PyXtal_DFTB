@@ -1,11 +1,11 @@
 from pyxtal.db import database
 from pyxtal.interface.dftb import DFTB
 from pyxtal.elasticity import fit_elastic_constants, elastic_properties
-from ase import units
+import ase.units as units
 from ase.io import read
 import os
-import numpy as np
 import warnings; warnings.filterwarnings("ignore")
+import numpy as np
 
 def run_calc(db, code, skf_dir, ftol, step1, step2, disps=['TS', 'D3']):
     """
@@ -24,6 +24,7 @@ def run_calc(db, code, skf_dir, ftol, step1, step2, disps=['TS', 'D3']):
     s.remove_water()
     symmetry = s.group.lattice_type
     if symmetry == 'hexagonal': symmetry = 'trigonal_high'
+    #print("+++++++++++++++++++++++++++++++++++++++++++++++++++", code)
 
     for disp in disps:
         tag = "{:s}-{:s}".format(code, disp)
@@ -62,13 +63,13 @@ def run_calc(db, code, skf_dir, ftol, step1, step2, disps=['TS', 'D3']):
             stress = struc.get_stress()/units.GPa
 
             res = "\n{:s} {:12.4f} eV {:6.1f} s\n".format(tag, energy, my.time)
+            res += "Ftol: {:.6f}\n".format(ftol)
             cell = struc.get_cell_lengths_and_angles()
-            res += "Cell: {:7.4f} {:7.4f} {:7.4f} ".format(*cell[:3])
+            res += "Cell: {:7.4f} {:7.4f} {:7.4f}  ".format(*cell[:3])
             res += "{:7.4f} {:7.4f} {:7.4f}\n".format(*cell[3:])
             res += "Stress (GPa) ".format(*stress)
             res += "{:7.2f} {:7.2f} {:7.2f} {:7.2f} {:7.2f} {:7.2f}\n".format(*stress)
-            res += "Fmax  (eV/A) {:7.3f}\n".format(fmax)
-            res += "ftol  (eV/A) {:.6f}\n".format(ftol)
+            res += "Fmax  (eV/A) {:7.5f}\n".format(fmax)
             print(res)
 
             if fmax < ftol:
@@ -106,6 +107,7 @@ def run_calc(db, code, skf_dir, ftol, step1, step2, disps=['TS', 'D3']):
         for i in range(6):
             strs = "{:7.2f} {:7.2f} {:7.2f} {:7.2f} {:7.2f} {:7.2f}".format(*C[i,:])
             res += strs + '\n'
+            print(strs)
 
         res += "\nBulk modulus, Shear modulus, Young's modulus, Poisson's ratio\n"
         k1, g1, e1, v1, k2, g2, e2, v2, k3, g3, e3, v3 = elastic_properties(C)
@@ -113,64 +115,57 @@ def run_calc(db, code, skf_dir, ftol, step1, step2, disps=['TS', 'D3']):
         res += "Reuss: {:7.2f} {:7.2f} {:7.2f} {:7.2f}\n".format(k2, g2, e2, v2)
         res += "Hill:  {:7.2f} {:7.2f} {:7.2f} {:7.2f}\n".format(k3, g3, e3, v3)
 
-  
-        C11, C33, C12, C13 = C[0, 0], C[2, 2], C[0, 1], C[0, 2]
-        E1 = (C11**2*C33+2*C13**2*C12-2*C13**2*C11-C12**2*C33)/(C11*C33-C13**2)
-        E3 = (C11**2*C33+2*C13**2*C12-2*C13**2*C11-C12**2*C33)/(C11**2-C12**2)
-        res += "\nYoung's Moduls (GPa): {:7.2f} {:7.2f}\n".format(E1, E3)
-
         print(res)
         with open(F_status, 'w') as f:
             f.write(res)
             if finish: f.write('Converged\n') 
-
+#===============INPUTS================
 if __name__ == "__main__":
 
-    from optparse import OptionParser
+    import multiprocessing as mp
 
-    parser = OptionParser()
-    parser.add_option("-n", "--ncpu", dest="ncpu",
-                      help="number of cpus, default: 1",
-                      type=int,
-                      default=48,
-                      metavar="ncpu")
-    parser.add_option("-c", "--code", dest="code",
-                      help="code, required",
-                      metavar="code")
-    parser.add_option("-d", "--db", dest="db",
-                      help="database name, required",
-                      metavar="code")
-    parser.add_option("-s", "--s1", dest="s1",
-                      type=int,
-                      default=10000,
-                      help="number of steps for Relaxation: 10000",
-                      metavar="s1")
-    parser.add_option("-e", "--s2", dest="s2",
-                      type=int,
-                      default=500,
-                      help="number of steps for elastic: 500",
-                      metavar="s2")
-    parser.add_option("-f", "--ftol", dest="ftol",
-                      type=float,
-                      default=1e-3,
-                      help="force tolerance, 1e-3 eV/A",
-                      metavar="ftol")
-    
-    (options, args) = parser.parse_args()
-    dbname = options.db
-    code = options.code
-    ncpu = options.ncpu
-    ftol = options.ftol
-    step1 = options.s1
-    step2 = options.s2
-    
-    #Local
-    #skf_dir = '/home/qzhu/opt/dftb+/Dftb+sk/3ob-3-1/'
-    
-    #Stampede2
     skf_dir = '/home1/01606/qiangz/opt/dftb+/Dftb+sk/3ob-3-1/'
-    cmd = 'mpirun -np ' +str(ncpu)+ ' /home1/01606/qiangz/opt/dftb+/bin/dftb+ > PREFIX.out'
-    os.environ['ASE_DFTB_COMMAND'] = cmd
+    db_name, ftol = '../dataset/hydrocarbon.db', 1e-4
+    db = database(db_name)
     
-    db = database(dbname)
-    run_calc(db, code, skf_dir, ftol, step1, step2)
+    nproc, total_cpu, step1, step2 = 48, 48, 5000, 500
+    #nproc, total_cpu, step1, step2 = 48, 48, 200, 5#0#0
+    ncpu = int(total_cpu/nproc)
+    #cmd = 'mpirun -np '+str(ncpu)+ ' /home1/01606/qiangz/opt/dftb+/bin/dftb+ > PREFIX.out'
+    cmd = '/home1/01606/qiangz/opt/dftb+/bin/dftb+ > PREFIX.out'
+    os.environ['ASE_DFTB_COMMAND'] = cmd
+
+    codes = [
+             #'BCYBUE01', 'GESNIB', 'GOHWAB', 'TAVPEN', 'ZZZITY01','BENZEN', 'BOBLEJ', 
+             #'HDMBZD', 'HAYXOU', 'HMBENZ04', 'KEGHEJ', 'NAPHTA', 'NPCBCP', 'SIWFUZ', 
+             'XOZQOT', 'ANTCEN', 'BIPHEN', 'PHENAN', 'NPDCBU', 
+             'CADWUD', 'NAFNIS', 'HIQHAT', 'TURTOR',
+             'TAFZOP', 'SOYVIL', 'OROVAV', 'ZZZEMS01', 'NOFZIR', 'SUCSOY', 
+             'DURENE', 'BUTPYR10', 'COPMUR', 'YAFJUL', 'MEYFUT', 
+             'GUMZOE', 'HBZPEN', 'PYRCEN', 'DITBOX', 'KIDJUD', 
+             'XITPEW', 'YETMEQ', 'CEKREP', 'CEKWEU', 'KIDJUD03', 
+             'DIPRBZ', 'CURBIA', 'DIBENZ01', 'KOXQIA', 'DUPRIP', 
+            ]
+    #nproc = min([nproc, len(codes)])
+    #pool = mp.Pool(processes=nproc)
+    #for code in codes:
+    #    pool.apply_async(run_calc, args=(db, code, skf_dir, ftol, step1, step2)) 
+    #pool.close()
+    #pool.join()
+
+    queue = mp.Queue()
+    per_cycle = int(np.ceil(total_cpu/ncpu))
+    N_cycle = int(np.ceil(len(codes)/per_cycle))
+
+    for cycle in range(N_cycle):
+        N1, N2 = per_cycle * cycle, per_cycle * (cycle+1)
+        if cycle + 1 == N_cycle: 
+            N2 = len(codes)
+    
+        processes = []
+        for i in range(N1, N2):
+            p = mp.Process(target=run_calc,
+                           args = (db, codes[i], skf_dir, ftol, step1, step2))
+            p.start()
+            processes.append(p)
+        for p in processes: p.join()   
