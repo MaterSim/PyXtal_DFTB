@@ -1,0 +1,25 @@
+Results from converged calculation
+Results from converged calculation
+
+HIZCOJ-TS  -11904.4536 eV 11611.3 s
+Cell: 10.3937 10.5805 27.3478 90.0000 90.0000 90.0000
+Stress (GPa)    0.08    0.07    0.08   -0.00   -0.00    0.00
+Fmax  (eV/A)   0.001
+ftol  (eV/A) 0.001000
+
+
+Elastic Constants (GPa)
+  17.65   12.73   10.88    0.00    0.00    0.00
+  12.73   32.08   11.03    0.00    0.00    0.00
+  10.88   11.03   22.65    0.00    0.00    0.00
+   0.00    0.00    0.00    6.12    0.00    0.00
+   0.00    0.00    0.00    0.00    5.80    0.00
+   0.00    0.00    0.00    0.00    0.00    6.31
+
+Bulk modulus, Shear modulus, Young's modulus, Poisson's ratio
+Voigt:   15.74    6.16   16.35    0.33
+Reuss:   14.76    5.81   15.40    0.33
+Hill:    15.25    5.98   15.88    0.33
+
+Young's Moduls (GPa):    7.89   14.86
+Converged

@@ -1,0 +1,24 @@
+Results from converged calculation
+
+ETIWIN-TS  -31688.3490 eV 72607.1 s
+Cell: 29.3875 29.3988 11.6460 90.0000 90.0000 120.5188
+Stress (GPa)    0.04    0.04    0.04    0.00   -0.00   -0.00
+Fmax  (eV/A)   0.001
+ftol  (eV/A) 0.001000
+
+
+Elastic Constants (GPa)
+  11.37    5.61    6.44   -0.00    0.00    0.00
+   5.61   11.37    6.44    0.00    0.00    0.00
+   6.44    6.44    8.42    0.00    0.00    0.00
+  -0.00    0.00    0.00    3.31    0.00    0.00
+   0.00    0.00    0.00    0.00    3.31    0.00
+   0.00    0.00    0.00    0.00    0.00    2.88
+
+Bulk modulus, Shear modulus, Young's modulus, Poisson's ratio
+Voigt:    7.57    2.75    7.35    0.34
+Reuss:    7.45    2.44    6.59    0.35
+Hill:     7.51    2.59    6.97    0.35
+
+Young's Moduls (GPa):    6.38    3.54
+Converged

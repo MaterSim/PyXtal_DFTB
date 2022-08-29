@@ -1,0 +1,25 @@
+Results from converged calculation
+Results from converged calculation
+
+IFABEW-TS   -8676.6232 eV 9411.8 s
+Cell: 25.3756 25.3739  4.8144 90.0000 90.0000 119.5008
+Stress (GPa)   -0.01   -0.01   -0.01   -0.00    0.00    0.00
+Fmax  (eV/A)   0.001
+ftol  (eV/A) 0.001000
+
+
+Elastic Constants (GPa)
+  13.22    9.70    7.38   -0.00    0.00    0.00
+   9.70   13.22    7.38    0.00    0.00    0.00
+   7.38    7.38   15.42    0.00    0.00    0.00
+  -0.00    0.00    0.00    3.50    0.00    0.00
+   0.00    0.00    0.00    0.00    3.50    0.00
+   0.00    0.00    0.00    0.00    0.00    1.76
+
+Bulk modulus, Shear modulus, Young's modulus, Poisson's ratio
+Voigt:   10.09    2.91    7.97    0.37
+Reuss:   10.09    2.56    7.07    0.38
+Hill:    10.09    2.73    7.52    0.38
+
+Young's Moduls (GPa):    5.76   10.66
+Converged
