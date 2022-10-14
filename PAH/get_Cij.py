@@ -19,22 +19,20 @@ for code in db.codes:
                     elas = ElasticOrtho(elas)
             except:
                 success_load = False
-                print(code, key)
-                print("Cij", row.data[key])
+                print("Problem in ", code, key)
+                print(row.data[key])
 
             if success_load:
                 minE = minimize(elas.Young, 2)[1]
                 maxE = maximize(elas.Young, 2)[1]
                 minLC = minimize(elas.LC, 2)[1]
                 maxLC = maximize(elas.LC, 2)[1]
-                #minG = minimize(elas.shear, 3)
-			    #maxG = maximize(elas.shear, 3)
-			    #minNu = minimize(elas.Poisson, 3)
-			    #maxNu = maximize(elas.Poisson, 3)
-
-                #print(minE)
-                #print(maxE)
-                print("{:12s} {:12s} {:12.3f} {:12.3f}".format(code, key, minLC, maxLC))
+                #minG = minimize(elas.shear, 3)[1]
+		#maxG = maximize(elas.shear, 3)[1]
+		#minNu = minimize(elas.Poisson, 3)[1]
+		#maxNu = maximize(elas.Poisson, 3)[1]
+                if maxE < 1000.0:
+                    print("{:12s} {:12s} {:12.3f} {:12.3f} {:12.3f} {:12.3f}".format(code, key, minE, maxE, minLC, maxLC))
                 count += 1
     #break
 
