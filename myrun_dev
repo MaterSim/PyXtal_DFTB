@@ -1,14 +1,14 @@
 #!/bin/sh
-#SBATCH -o %x.%j.out
+#SBATCH -j test-pep
+#SBATCH -o test
 #SBATCH -p skx-dev
 #SBATCH -N 1
 #SBATCH -n 48
 #SBATCH -t 2:00:00        # Run time (hh:mm:ss)
 #SBATCH -A TG-DMR180040
 
-CODE=$SLURM_JOB_NAME
 EXE='/home1/01606/qiangz/miniconda3/bin/python ' 
-CMD="${EXE} test.py -d dataset/peptide.db -c ${CODE} -s 10 -e 5 -n 32 > log_${CODE}" 
+CMD="${EXE} test_pep.py > log_test" 
 echo "===============================BEGIN=============================="
 echo $CMD
 eval $CMD
